@@ -1,58 +1,62 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кабинет информатики</title>
     <link rel="stylesheet" href="./css/style.css">
 </head>
+
 <body>
-   <div id="game-container">
-    
-    <!-- Сцена с 4 экранами -->
-    <div id="scene">
-        <div id="view-1" class="view">
-            ЗОНА 1: СТОЛ УЧИТЕЛЯ
-            <br><span style="font-size: 30px; opacity: 0.7;">(Стол, Ноутбук, Ящик, Телефон)</span>
-        </div>
-        <div id="view-2" class="view">
-            ЗОНА 2: ДВЕРЬ
-            <br><span style="font-size: 30px; opacity: 0.7;">(Дверь, Доска, Принтер)</span>
-        </div>
-        <div id="view-3" class="view">
-            ЗОНА 3: СЕЙФ
-            <br><span style="font-size: 30px; opacity: 0.7;">(Сейф, Шкаф, Картина)</span>
-        </div>
-        <div id="view-4" class="view">
-            ЗОНА 4: УЧЕНИК
-            <br><span style="font-size: 30px; opacity: 0.7;">(Парта, ПК, Горшок)</span>
-        </div>
-    </div>
+    <div id="game-container">
 
-    <!-- UI поверх игры -->
-    <div id="ui-layer">
-        <div id="timer">45:00</div>
-        <div id="thoughts"></div>
-        
-        <div id="inventory">
-            <div class="slot" data-slot="0"></div>
-            <div class="slot" data-slot="1"></div>
-            <div class="slot" data-slot="2"></div>
-            <div class="slot" data-slot="3"></div>
-            <div class="slot" data-slot="4"></div>
-        </div>
-    </div>
+        <!-- Сцена с 4 экранами -->
+        <div id="scene">
+            <div id="view-1" class="view">
+                ЗОНА 1: СТОЛ УЧИТЕЛЯ
+                <br><span style="font-size: 30px; opacity: 0.7;">(Стол, Ноутбук, Ящик, Телефон)</span>
 
-    <!-- Стрелки (поверх сцены) -->
-    <div id="arrow-left" class="arrow">←</div>
-    <div id="arrow-right" class="arrow">→</div>
-    <div id="arrow-right" class="arrow">→</div>
+                <!-- Наш первый предмет -->
+                <div id="obj-letter" class="interactive-object" title="Письмо"></div>
+            </div>
+            <div id="view-2" class="view">
+                ЗОНА 2: ДВЕРЬ
+                <br><span style="font-size: 30px; opacity: 0.7;">(Дверь, Доска, Принтер)</span>
+            </div>
+            <div id="view-3" class="view">
+                ЗОНА 3: СЕЙФ
+                <br><span style="font-size: 30px; opacity: 0.7;">(Сейф, Шкаф, Картина)</span>
+            </div>
+            <div id="view-4" class="view">
+                ЗОНА 4: УЧЕНИК
+                <br><span style="font-size: 30px; opacity: 0.7;">(Парта, ПК, Горшок)</span>
+            </div>
+        </div>
+
+        <!-- UI поверх игры (прозрачен для кликов, кроме инвентаря) -->
+        <div id="ui-layer">
+            <div id="timer">45:00</div>
+            <div id="thoughts"></div>
+
+            <div id="inventory">
+                <div class="slot" data-slot="0"></div>
+                <div class="slot" data-slot="1"></div>
+                <div class="slot" data-slot="2"></div>
+                <div class="slot" data-slot="3"></div>
+                <div class="slot" data-slot="4"></div>
+            </div>
+        </div>
+
+        <!-- Стрелки (ОБЯЗАТЕЛЬНО вне ui-layer, чтобы кликались) -->
+        <div id="arrow-left" class="arrow">←</div>
+        <div id="arrow-right" class="arrow">→</div>
+
+    </div>
 
     <script src="./js/game.js"></script>
     <script src="./js/inventory.js"></script>
     <script src="./js/views.js"></script>
 </body>
 
-</div>
-</body>
 </html>

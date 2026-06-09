@@ -3,60 +3,667 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кабинет информатики</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <title>Кабинет Информатики: Текстовый Квест</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 1200px;
+            height: 700px;
+            background: #111;
+            border: 2px solid #333;
+            display: flex;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        #main-panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #inventory-panel {
+            width: 280px;
+            background: #0a0a0a;
+            border-left: 2px solid #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #timer {
+            position: absolute;
+            top: 15px;
+            right: 30px;
+            font-size: 24px;
+            color: #ff4444;
+            font-weight: bold;
+        }
+
+        #crystals {
+            position: absolute;
+            top: 15px;
+            left: 30px;
+            font-size: 18px;
+            color: #ffd700;
+        }
+
+        #story-text {
+            flex: 1;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        #choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .choice-btn {
+            background: #222;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .choice-btn:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        .ending-bad {
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .ending-good {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 24px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #inventory-title {
+            color: #ffd700;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        #inventory-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .inventory-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .inventory-item.artifact {
+            border-color: #ffd700;
+            background: #2a2a1a;
+        }
+
+        .inventory-item .item-name {
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        .inventory-item.artifact .item-name {
+            color: #ffd700;
+        }
+
+        .inventory-item .item-desc {
+            color: #888;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        #notification {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2a2a2a;
+            border: 2px solid #0f0;
+            color: #0f0;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+            text-align: center;
+            max-width: 500px;
+        }
+
+        #notification.show {
+            opacity: 1;
+        }
+
+        .empty-inventory {
+            color: #555;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #inline-input-container {
+            display: none;
+            margin-top: 10px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #inline-input {
+            background: #000;
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 16px;
+            flex: 1;
+            outline: none;
+        }
+
+        #inline-input-btn {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
 </head>
 
 <body>
     <div id="game-container">
-
-        <!-- Сцена с 4 экранами -->
-        <div id="scene">
-            <div id="view-1" class="view">
-                ЗОНА 1: СТОЛ УЧИТЕЛЯ
-                <br><span style="font-size: 30px; opacity: 0.7;">(Стол, Ноутбук, Ящик, Телефон)</span>
-
-                <!-- Наш первый предмет -->
-                <div id="obj-letter" class="interactive-object" title="Письмо"></div>
-            </div>
-            <div id="view-2" class="view">
-                ЗОНА 2: ДВЕРЬ
-                <br><span style="font-size: 30px; opacity: 0.7;">(Дверь, Доска, Принтер)</span>
-            </div>
-            <div id="view-3" class="view">
-                ЗОНА 3: СЕЙФ
-                <br><span style="font-size: 30px; opacity: 0.7;">(Сейф, Шкаф, Картина)</span>
-            </div>
-            <div id="view-4" class="view">
-                ЗОНА 4: УЧЕНИК
-                <br><span style="font-size: 30px; opacity: 0.7;">(Парта, ПК, Горшок)</span>
-            </div>
-        </div>
-
-        <!-- UI поверх игры (прозрачен для кликов, кроме инвентаря) -->
-        <div id="ui-layer">
+        <div id="main-panel">
+            <div id="crystals">Кристаллы: 0/5</div>
             <div id="timer">45:00</div>
-            <div id="thoughts"></div>
-
-            <div id="inventory">
-                <div class="slot" data-slot="0"></div>
-                <div class="slot" data-slot="1"></div>
-                <div class="slot" data-slot="2"></div>
-                <div class="slot" data-slot="3"></div>
-                <div class="slot" data-slot="4"></div>
+            <div id="notification"></div>
+            <div id="story-text"></div>
+            <div id="choices"></div>
+            <div id="inline-input-container">
+                <input type="text" id="inline-input" placeholder="Введите значение...">
+                <button id="inline-input-btn">OK</button>
             </div>
         </div>
-
-        <!-- Стрелки (ОБЯЗАТЕЛЬНО вне ui-layer, чтобы кликались) -->
-        <div id="arrow-left" class="arrow">←</div>
-        <div id="arrow-right" class="arrow">→</div>
-
+        <div id="inventory-panel">
+            <div id="inventory-title"> ИНВЕНТАРЬ</div>
+            <div id="inventory-list">
+                <div class="empty-inventory">Пусто</div>
+            </div>
+        </div>
     </div>
 
-    <script src="./js/game.js"></script>
-    <script src="./js/inventory.js"></script>
-    <script src="./js/views.js"></script>
+    <script>
+        // ГЛОБАЛЬНОЕ СОСТОЯНИЕ - ничего не сбрасывается
+        const state = {
+            // Телефон
+            hasPhone: false,
+            phoneBlocked: false,
+
+            // Предметы на столе
+            hasLetter: false,
+            hasCard: false,
+            hasNote4871: false,
+            knowsDrawerCode: false,
+
+            // Ящик
+            drawerOpened: false,
+            hasDirectorCard: false,
+
+            // Ноутбук
+            laptopUnlocked: false,
+            knowsPassword: false,
+
+            // Сейф
+            safeOpened: false,
+
+            // Картина
+            hasGreenMaskNote: false,
+
+            // Флешка и ПК
+            hasFlash: false,
+            usbScanned: false,
+
+            // Кристаллы
+            crystals: 0,
+            timeLeft: 45 * 60,
+            inventory: []
+        };
+
+        const textEl = document.getElementById('story-text');
+        const choicesEl = document.getElementById('choices');
+        const timerEl = document.getElementById('timer');
+        const crystalsEl = document.getElementById('crystals');
+        const inventoryListEl = document.getElementById('inventory-list');
+        const notificationEl = document.getElementById('notification');
+        const inputContainer = document.getElementById('inline-input-container');
+        const inputField = document.getElementById('inline-input');
+        const inputBtn = document.getElementById('inline-input-btn');
+
+        function updateCrystals() { crystalsEl.innerText = `Кристаллы: ${state.crystals}/5`; }
+        function updateTimer() {
+            if (state.timeLeft <= 0) {
+                showEnding('bad', "Время вышло. Зеленая маска усмехнулась: «Слишком медленно». Оценки удалены.");
+                return;
+            }
+            state.timeLeft--;
+            const m = Math.floor(state.timeLeft / 60).toString().padStart(2, '0');
+            const s = (state.timeLeft % 60).toString().padStart(2, '0');
+            timerEl.innerText = `${m}:${s}`;
+        }
+        setInterval(updateTimer, 1000);
+
+        function showText(text) { textEl.innerText = text; textEl.scrollTop = 0; }
+        function clearChoices() { choicesEl.innerHTML = ''; inputContainer.style.display = 'none'; }
+
+        function addChoice(text, action) {
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn'; btn.innerText = '> ' + text; btn.onclick = action;
+            choicesEl.appendChild(btn);
+        }
+
+        function showNotification(text) {
+            notificationEl.innerText = text; notificationEl.classList.add('show');
+            setTimeout(() => notificationEl.classList.remove('show'), 3000);
+        }
+
+        function addToInventory(id, name, desc, isArtifact = false) {
+            if (state.inventory.some(item => item.id === id)) return;
+            state.inventory.push({ id, name, desc, isArtifact });
+            renderInventory(); showNotification(`✓ Получено: ${name}`);
+        }
+        function removeFromInventory(id) {
+            state.inventory = state.inventory.filter(item => item.id !== id);
+            renderInventory();
+        }
+        function renderInventory() {
+            if (state.inventory.length === 0) {
+                inventoryListEl.innerHTML = '<div class="empty-inventory">Пусто</div>'; return;
+            }
+            inventoryListEl.innerHTML = '';
+            state.inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'inventory-item' + (item.isArtifact ? ' artifact' : '');
+                div.innerHTML = `<div class="item-name">${item.name}</div><div class="item-desc">${item.desc}</div>`;
+                inventoryListEl.appendChild(div);
+            });
+        }
+
+        function showEnding(type, text) {
+            clearChoices();
+            textEl.innerHTML = `<div class="ending-${type}">${type === 'bad' ? '💀 ПЛОХАЯ КОНЦОВКА' : ' ПОБЕДА!'}<br><br></div>` + text;
+            if (type === 'bad') addChoice('🔄 Начать заново', () => location.reload());
+            else {
+                const elapsed = 45 * 60 - state.timeLeft;
+                textEl.innerHTML += `<br><br>Время: ${Math.floor(elapsed / 60)} мин ${elapsed % 60} сек`;
+                addChoice('🔄 Играть снова', () => location.reload());
+            }
+        }
+
+        function addCrystal(name, desc) {
+            state.crystals++; addToInventory(name, name, desc, true); updateCrystals();
+            if (state.crystals === 5) {
+                setTimeout(() => {
+                    showText("В углу кабинета материализуется красный свет... Появился компьютер хакера!");
+                    clearChoices(); addChoice("Подойти к компьютеру хакера", () => loadScene('hacker_pc'));
+                }, 1500);
+            }
+        }
+
+        function promptInput(label, callback) {
+            clearChoices();
+            inputContainer.style.display = 'flex';
+            inputField.placeholder = label;
+            inputField.value = '';
+            inputField.focus();
+
+            const handler = () => {
+                const val = inputField.value.trim();
+                inputContainer.style.display = 'none';
+                inputField.onkeydown = null;
+                inputBtn.onclick = null;
+                callback(val);
+            };
+            inputField.onkeydown = (e) => { if (e.key === 'Enter') handler(); };
+            inputBtn.onclick = handler;
+        }
+
+        const scenes = {
+            start: () => {
+                showText("Вы остались после уроков в кабинете информатики. Дверь захлопнулась.\nНа экране учителя горит зеленая маска:\n«Я зашифровал оценки. Найдите 5 кристаллов безопасности. Ошибка будет стоить вам всего...»\n\nУ вас 45 минут. Куда пойдете?");
+                clearChoices();
+                addChoice("Подойти к столу учителя", () => loadScene('teacher_desk'));
+                addChoice("Осмотреть дверь и доску", () => loadScene('door_area'));
+                addChoice("Пойти к шкафу и сейфу", () => loadScene('bookshelf_area'));
+                addChoice("Сесть за парту ученика", () => loadScene('student_area'));
+            },
+
+            teacher_desk: () => {
+                let desc = "Стол учителя.\n";
+
+                // Письмо
+                if (!state.hasLetter) desc += "— Лежит бумажное письмо с печатью школы\n";
+                // Визитка
+                if (!state.hasCard) desc += "— Рядом визитка учителя\n";
+                // Записка 4871
+                if (!state.hasNote4871) desc += "— В углу смята записка с цифрами 4871\n";
+                // Телефон
+                if (!state.hasPhone) desc += "— Смартфон учителя лежит на столе\n";
+                else if (!state.phoneBlocked) desc += "— Смартфон в руке, экран светится\n";
+                else desc += "— Смартфон заблокирован\n";
+                // Ноутбук
+                if (!state.laptopUnlocked) desc += "— Закрыт ноутбук с наклейкой «Блокируй телефон перед вводом пароля»\n";
+                // Ящик
+                if (!state.drawerOpened) desc += "— Заперт ящик стола с кодовым замком";
+                else desc += "— Ящик стола открыт и пуст";
+
+                showText(desc);
+                clearChoices();
+
+                // Письмо
+                if (!state.hasLetter) addChoice("Взять письмо", () => {
+                    state.hasLetter = true;
+                    addToInventory('letter', 'Письмо', 'Бумажное письмо с подозрительной ссылкой');
+                    loadScene('teacher_desk');
+                });
+
+                // Визитка
+                if (!state.hasCard) addChoice("Взять визитку", () => {
+                    state.hasCard = true;
+                    addToInventory('card', 'Визитка учителя', 'Email и телефон учителя');
+                    loadScene('teacher_desk');
+                });
+
+                // Записка 4871
+                if (!state.hasNote4871) addChoice("Взять записку 4871", () => {
+                    state.hasNote4871 = true;
+                    addToInventory('note4871', 'Записка 4871', 'Цифры 4871');
+                    showNotification("✓ Запомнили: 4871");
+                    loadScene('teacher_desk');
+                });
+
+                // Сравнить письмо и визитку
+                if (state.hasLetter && state.hasCard && !state.knowsDrawerCode) {
+                    addChoice("Сравнить письмо и визитку", () => {
+                        showText("Email в письме отличается от визитки на одну букву! Это фишинг.\nВы звоните учителю по настоящему номеру. Он диктует код от ящика: 1709.");
+                        state.knowsDrawerCode = true;
+                        showNotification("✓ Код ящика: 1709");
+                        loadScene('teacher_desk');
+                    });
+                }
+
+                // Телефон - новая логика
+                if (!state.hasPhone) {
+                    addChoice("Взять телефон", () => {
+                        state.hasPhone = true;
+                        showText("Вы берете смартфон. На экране всплывает уведомление:\n«Перейдите по ссылке для подтверждения аккаунта»\n\nЧто сделаете?");
+                        clearChoices();
+                        addChoice("Перейти по ссылке", () => {
+                            showEnding('bad', "Вы перешли по фишинговой ссылке. Данные школы украдены.\nНикогда не кликайте на подозрительные ссылки!");
+                        });
+                        addChoice("Заблокировать телефон", () => {
+                            state.phoneBlocked = true;
+                            showNotification("✓ Телефон заблокирован");
+                            showText("Вы заблокировали телефон. Теперь хакер не сможет перехватить СМС с кодами.\n\nТеперь можно безопасно работать с сейфом и ноутбуком.");
+                            loadScene('teacher_desk');
+                        });
+                    });
+                } else if (!state.phoneBlocked) {
+                    addChoice("Перейти по ссылке на телефоне", () => {
+                        showEnding('bad', "Вы перешли по фишинговой ссылке. Данные школы украдены.\nНикогда не кликайте на подозрительные ссылки!");
+                    });
+                    addChoice("Заблокировать телефон", () => {
+                        state.phoneBlocked = true;
+                        showNotification("✓ Телефон заблокирован");
+                        showText("Вы заблокировали телефон. Теперь хакер не сможет перехватить СМС с кодами.\n\nТеперь можно безопасно работать с сейфом и ноутбуком.");
+                        loadScene('teacher_desk');
+                    });
+                } else {
+                    addChoice("Разблокировать телефон", () => {
+                        state.phoneBlocked = false;
+                        showNotification("⚠ Телефон разблокирован");
+                        showText("Вы разблокировали телефон. Теперь он уязвим для СМС-атак.\n\nРекомендуется снова заблокировать перед работой с конфиденциальными данными.");
+                        loadScene('teacher_desk');
+                    });
+                }
+
+                // Ящик
+                if (!state.drawerOpened && state.knowsDrawerCode) {
+                    addChoice("Открыть ящик стола", () => {
+                        state.drawerOpened = true;
+                        state.hasDirectorCard = true;
+                        addToInventory('director_card', 'Визитка директора', 'Контакты директора');
+                        addCrystal('Кристалл Фишинга', 'Фиолетовый кристалл (1/5)');
+                        loadScene('teacher_desk');
+                    });
+                }
+
+                // Ноутбук
+                if (!state.laptopUnlocked) {
+                    if (!state.phoneBlocked) {
+                        addChoice("Попробовать открыть ноутбук", () => {
+                            showText("Наклейка предупреждает: «Блокируй телефон перед вводом пароля».\nХакер может перехватить пароль через СМС-троян. Сначала заблокируйте телефон.");
+                            loadScene('teacher_desk');
+                        });
+                    } else {
+                        addChoice("Ввести пароль в ноутбук", () => {
+                            promptInput("Введите пароль:", (pwd) => {
+                                if (pwd === 'P@ssw0rd!Z') {
+                                    state.laptopUnlocked = true;
+                                    addCrystal('Кристалл Пароля', 'Голубой кристалл (2/5)');
+                                    showText("Пароль принят! Внутри файл с голубым кристаллом.\n«Надежный пароль — это важно».");
+                                    loadScene('teacher_desk');
+                                } else {
+                                    showText("Неверный пароль. Ноутбук блокируется на 5 минут!");
+                                    state.timeLeft -= 300;
+                                    loadScene('teacher_desk');
+                                }
+                            });
+                        });
+                    }
+                }
+
+                addChoice("Вернуться в центр", () => loadScene('start'));
+            },
+
+            door_area: () => {
+                showText("Дверь заперта. На ней записка зеленым маркером:\n«Я зашифровал оценки. Найдите 5 кристаллов... — GreenMask»\n\nНа доске мелом: «_@!» и «P@ssw0rd».\nПринтер мигает (нет бумаги), мусорка пуста.");
+                clearChoices();
+                if (!state.knowsPassword) {
+                    addChoice("Изучить доску", () => {
+                        state.knowsPassword = true;
+                        showNotification("✓ Пароль: P@ssw0rd!Z");
+                        loadScene('door_area');
+                    });
+                }
+                addChoice("Вернуться в центр", () => loadScene('start'));
+            },
+
+            bookshelf_area: () => {
+                let desc = "Книжный шкаф, сейф в тумбе, картина на стене.\n";
+                if (!state.knowsPassword) desc += "В шкафу книга «Пароли». Открыта на примере: «P@ssw0rd!Z».\n";
+                if (!state.hasGreenMaskNote) desc += "Картина висит криво, рамка тяжелая.\n";
+                if (!state.safeOpened) desc += "Сейф выглядит надежно. (Внимание: попытка взлома без блокировки телефона приведет к провалу!)";
+                else desc += "Сейф открыт и пуст.";
+                showText(desc);
+                clearChoices();
+
+                if (!state.knowsPassword) addChoice("Прочитать книгу", () => {
+                    state.knowsPassword = true;
+                    showNotification("✓ Пароль: P@ssw0rd!Z");
+                    loadScene('bookshelf_area');
+                });
+
+                if (!state.hasGreenMaskNote) addChoice("Осмотреть картину", () => {
+                    state.hasGreenMaskNote = true;
+                    addToInventory('greenmask_note', 'Записка GreenMask', 'Псевдоним хакера и IP');
+                    loadScene('bookshelf_area');
+                });
+
+                if (!state.safeOpened) addChoice("Открыть сейф", () => {
+                    if (!state.phoneBlocked) {
+                        showEnding('bad', "Вы начинаете подбирать код к сейфу. На разблокированный телефон приходит СМС с трояном. Хакер перехватывает управление аккаунтом директора.\n\nВсегда блокируйте устройства перед вводом конфиденциальных кодов!");
+                    } else {
+                        promptInput("Введите 4-значный код:", (code) => {
+                            if (code === '4871') {
+                                state.safeOpened = true;
+                                addCrystal('Кристалл Времени', 'Оранжевый кристалл 03:15 (3/5)');
+                                loadScene('bookshelf_area');
+                            } else {
+                                showText("Неверный код! Сейф пищит. -2 минуты.");
+                                state.timeLeft -= 120;
+                                loadScene('bookshelf_area');
+                            }
+                        });
+                    }
+                });
+
+                addChoice("Вернуться в центр", () => loadScene('start'));
+            },
+
+            student_area: () => {
+                let desc = "Парты учеников. Школьный компьютер.\n";
+                if (!state.hasFlash) desc += "На подоконнике тяжелый цветочный горшок.\n";
+                else desc += "На подоконнике пустой цветочный горшок.\n";
+                if (state.hasFlash && !state.usbScanned) desc += "Флешка вставлена в ПК (не проверена антивирусом!)";
+                else if (state.hasFlash && state.usbScanned) desc += "Флешка вставлена в ПК (проверена, безопасна)";
+                showText(desc);
+                clearChoices();
+
+                if (!state.hasFlash) addChoice("Проверить горшок", () => {
+                    state.hasFlash = true;
+                    addToInventory('flash_dirty', 'Подозрительная флешка', 'Красная, без маркировки');
+                    loadScene('student_area');
+                });
+
+                if (state.hasFlash) {
+                    addChoice("Работать с флешкой на ПК", () => {
+                        clearChoices();
+                        addChoice("Запустить Антивирус", () => {
+                            if (state.usbScanned) {
+                                showText("Угроз нет. Флешка чиста.");
+                                loadScene('student_area');
+                            } else {
+                                showText("Сканирование... [████████] 100%\n«Угроз не обнаружено. USB безопасен».");
+                                state.usbScanned = true;
+                                showNotification("✓ Флешка проверена");
+                                loadScene('student_area');
+                            }
+                        });
+                        addChoice("Открыть Диск F:", () => {
+                            if (!state.usbScanned) showEnding('bad', "Запустился auto.exe. RANSOMWARE ACTIVATED. Сервер взломан.\nНикогда не открывайте незнакомые флешки без проверки!");
+                            else {
+                                removeFromInventory('flash_dirty');
+                                state.hasFlash = false;
+                                addCrystal('Кристалл IP', 'Бирюзовый кристалл из IP.txt (4/5)');
+                                loadScene('student_area');
+                            }
+                        });
+                        addChoice("Вынуть флешку и выйти", () => loadScene('student_area'));
+                    });
+                }
+
+                if (state.hasGreenMaskNote && state.hasDirectorCard) {
+                    addChoice("Связать GreenMask и визитку директора", () => {
+                        removeFromInventory('greenmask_note');
+                        removeFromInventory('director_card');
+                        state.hasGreenMaskNote = false;
+                        state.hasDirectorCard = false;
+                        addCrystal('Кристалл Псевдонима', 'Розовый кристалл (5/5)');
+                        loadScene('student_area');
+                    });
+                }
+
+                addChoice("Вернуться в центр", () => loadScene('start'));
+            },
+
+            hacker_pc: () => {
+                showText("Красный компьютер хакера. Черный экран, мигает курсор.\nHackerOS v1.0\nВведите команду:");
+                clearChoices();
+                inputContainer.style.display = 'flex';
+                inputField.placeholder = "Введите команду (HELP для списка)...";
+                inputField.value = '';
+                inputField.focus();
+
+                const processCmd = (cmd) => {
+                    const c = cmd.trim().toUpperCase();
+                    if (c === 'OPEN') {
+                        inputContainer.style.display = 'none';
+                        showText("ACCESS GRANTED.\nДверь открывается. Маска рассыпается. Вы спасли оценки!");
+                        showEnding('good', "Все проверки кибербезопасности пройдены.");
+                    } else if (c === 'HELP') {
+                        textEl.innerText += "\n> HELP\nКоманды: OPEN, DIR, CLS, HELP\n";
+                        inputField.value = '';
+                        inputField.focus();
+                    } else if (c === 'DIR') {
+                        textEl.innerText += `\n> DIR\nКристаллов: ${state.crystals}/5\n`;
+                        inputField.value = '';
+                        inputField.focus();
+                    } else if (c === 'CLS') {
+                        textEl.innerText = "HackerOS v1.0\nВведите команду:";
+                        inputField.value = '';
+                        inputField.focus();
+                    } else {
+                        textEl.innerText += `\n> ${c}\nUnknown command.\n`;
+                        inputField.value = '';
+                        inputField.focus();
+                    }
+                };
+
+                inputField.onkeydown = (e) => { if (e.key === 'Enter') processCmd(inputField.value); };
+                inputBtn.onclick = () => processCmd(inputField.value);
+            }
+        };
+
+        function loadScene(id) { if (scenes[id]) scenes[id](); }
+        loadScene('start');
+    </script>
 </body>
 
 </html>

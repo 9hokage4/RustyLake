@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Кабинет информатики</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <div id="game-container">
+   <div id="game-container">
     
     <!-- Сцена с 4 экранами -->
     <div id="scene">
@@ -29,14 +29,30 @@
         </div>
     </div>
 
+    <!-- UI поверх игры -->
+    <div id="ui-layer">
+        <div id="timer">45:00</div>
+        <div id="thoughts"></div>
+        
+        <div id="inventory">
+            <div class="slot" data-slot="0"></div>
+            <div class="slot" data-slot="1"></div>
+            <div class="slot" data-slot="2"></div>
+            <div class="slot" data-slot="3"></div>
+            <div class="slot" data-slot="4"></div>
+        </div>
+    </div>
+
     <!-- Стрелки (поверх сцены) -->
     <div id="arrow-left" class="arrow">←</div>
     <div id="arrow-right" class="arrow">→</div>
+    <div id="arrow-right" class="arrow">→</div>
+
+    <script src="./js/game.js"></script>
+    <script src="./js/inventory.js"></script>
+    <script src="./js/views.js"></script>
+</body>
 
 </div>
-
-    <script src="js/game.js"></script>
-    <script src="js/inventory.js"></script>
-    <script src="js/views.js"></script>
 </body>
 </html>
